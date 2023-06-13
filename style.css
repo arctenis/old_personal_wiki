@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+
+body {
+    font-family: Roboto, sans;
+    margin: 2em;
+    background-color: #121212;
+    color: #FDFDEF;
+}
+
+nav {
+    position: sticky;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-height: 2em;
+    padding: 1em;
+    top: 0;
+    background-color: #121212;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2em;
+    justify-content: flex-end;
+}
+
+.logo {
+    justify-content: flex-start;
+}
+
+.logo img {
+    height: 40px;
+}
+
+.logo img:hover {
+    transform: scaleY(-1);
+}
+
+
+.nav-links > a {
+    border-bottom: 1px solid #FDFDEF;
+    padding-bottom: 3px;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    text-decoration: none;
+}
+
+h1 {
+    text-transform: uppercase;
+    margin-bottom: 5em;
+}
+
+h2 {
+    margin-top: 2em;
+    margin-bottom: 1em;
+}
+
+h3 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+p {
+    max-width: 800px;
+    line-height: 1.5em;
+}
+
+a {
+    color: #FDFDEF;
+    text-decoration: none;
+}
+
+a:hover {
+           /*ffd166 06d6a0 118ab2 */
+
+    background-color: #FFD166;
+    background-image: linear-gradient(45deg, #E63838, #F77F00);
+    background-size: 100%;
+    background-clip: text;
+    text-fill-color: transparent;
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -moz-text-fill-color: transparent;
+
+}
+
+li > a, p > a {
+    text-decoration: underline;
+}
+
+
+li {
+    list-style-type: circle;
+}
+
+img {
+    border: none;
+    max-width: 100%;
+    margin: 2em 0em 2em 0em;
+    height: auto;
+}
+
+blockquote {
+    color: #A0A0A0;
+    font-style: italic;
+    border-left: 3px solid #FDFDEF;
+    margin: 2em 1em -0.5em 1em;
+    padding-left: 1em;
+}
+
+.tag {
+    color: #A0A0A0;
+    font-family: monospace;
+}
+
+code {
+    font-family: monospace;
+    padding: 0.4em 0.8em 0.4em 0.8em;
+    background-color: #242424;
+    color: #FDFDEF;
+}
+
+footer {
+    height: 2em;
+    bottom: 0;
+}
