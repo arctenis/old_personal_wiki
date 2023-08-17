@@ -1,6 +1,16 @@
 site_name: Arctenis Chloria
 site_url: https://arctenis.github.io/
+nav:
+  - Accueil: index.md
+  - Guides: guides.md
+  - Porfolio: portfolio.md
+  - CV: cv.md
 theme:
   name: material
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - navigation.tabs.sticky
   palette:
     scheme: slate
+
