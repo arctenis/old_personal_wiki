@@ -1,10 +1,13 @@
-site_name: Arctenis Chloria
+site_name: Cigare Volant
 site_url: https://arctenis.github.io/
 nav:
   - Accueil: index.md
-  - Guides: guides.md
+  - Guides: 
+    - Go:
+      - guides/go/00_hello_world.md
   - Porfolio: portfolio.md
   - CV: cv.md
+
 theme:
   name: material
   features:

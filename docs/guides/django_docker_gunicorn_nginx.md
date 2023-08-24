@@ -15,9 +15,19 @@ mkdir django_docker_gunicorn
 cd django_docker_gunicorn
 mkdir app
 cd app
+```
+
+Créez et activez votre environnement virtuel.
+
+```bash
 python -m venv .venv --prompt=django
 source .venv/bin/activate
 pip install -U pip
+```
+
+Installez Django et créez un nouveau projet.
+
+```bash
 pip install django
 django-admin startproject core .
 pip freeze > requirements.txt
