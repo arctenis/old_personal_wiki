@@ -21,6 +21,7 @@ Créez et activez votre environnement virtuel.
 
 ```bash
 python -m venv .venv --prompt=django
+
 source .venv/bin/activate
 pip install -U pip
 ```
@@ -31,11 +32,15 @@ Installez Django et créez un nouveau projet.
 pip install django
 django-admin startproject core .
 pip freeze > requirements.txt
+```
+
+Effectuez les migrations et lancez le serveur de développement.
+```bash
 python manage.py migrate
 python manage.py runserver
 ```
 
-Visitez http://localhost:8000/ pour vérifier que le projet a bien été créé.
+Visitez `http://localhost:8000/` pour vérifier que le projet a bien été créé.
 
 N'oubliez pas de supprimer le fichier *db.sqlite3*.
 
@@ -129,20 +134,21 @@ de Django.
 
 Nous allons maintenant ajouter une base de données Postgres à notre projet.
 
-Installez le module `psycopg2`. Psycopg2 est un adaptateur de base de données
-PostgreSQL pour le langage de programmation Python. Il permet aux programmes
-Python de faire des requêtes SQL vers une base de données PostgreSQL.
+Psycopg2 est un adaptateur de base de données PostgreSQL pour le langage de
+programmation Python. Il permet aux programmes Python de faire des requêtes SQL
+vers une base de données PostgreSQL.
 
 > psycopg2-binary est une version précompilée de psycopg2. Elle est plus facile
 > à installer que psycopg2, mais elle est plus lourde. Vous pouvez utiliser
 > psycopg2 à la place si vous le souhaitez.
 
+Installez le module `psycopg2` et ajoutez-le à vos dépendances.
 
 ```bash
 pip install psycopg2-binary
 pip freeze > requirements.txt
 ```
 
-
+--WIP--
 
 
