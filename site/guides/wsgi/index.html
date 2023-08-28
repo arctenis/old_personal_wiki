@@ -8,7 +8,7 @@
       
       
       
-        <link rel="canonical" href="https://arctenis.github.io/guides/django_docker_gunicorn_nginx/">
+        <link rel="canonical" href="https://arctenis.github.io/guides/wsgi/">
       
       
       
@@ -17,7 +17,7 @@
     
     
       
-        <title>Dockeriser une application avec Django, Postgres, Gunicorn et Nginx - Cigare Volant</title>
+        <title>WSGI, une introduction - Cigare Volant</title>
       
     
     
@@ -65,7 +65,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dockeriser-une-application-avec-django-postgres-gunicorn-et-nginx" class="md-skip">
+        <a href="#wsgi-une-introduction" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Dockeriser une application avec Django, Postgres, Gunicorn et Nginx
+              WSGI, une introduction
             
           </span>
         </div>
@@ -405,30 +405,105 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequis" class="md-nav__link">
-    Prérequis
+  <a href="#pourquoi-wsgi-est-necessaire" class="md-nav__link">
+    Pourquoi WSGI est nécessaire ?
   </a>
+  
+    <nav class="md-nav" aria-label="Pourquoi WSGI est nécessaire ?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#le-probleme-de-la-portabilite" class="md-nav__link">
+    Le problème de la portabilité
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#un-besoin-duniformite" class="md-nav__link">
+    Un besoin d'uniformité
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#la-solution-wsgi" class="md-nav__link">
+    La solution : WSGI
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#les-avantages" class="md-nav__link">
+    Les avantages
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#creer-le-projet" class="md-nav__link">
-    Créer le projet
+  <a href="#terminologie" class="md-nav__link">
+    Terminologie
+  </a>
+  
+    <nav class="md-nav" aria-label="Terminologie">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#interface-wsgi" class="md-nav__link">
+    Interface WSGI
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#docker" class="md-nav__link">
-    Docker
+        
+          <li class="md-nav__item">
+  <a href="#application-wsgi" class="md-nav__link">
+    Application WSGI
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#postgres" class="md-nav__link">
-    Postgres
+        
+          <li class="md-nav__item">
+  <a href="#serveur-wsgi" class="md-nav__link">
+    Serveur WSGI
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#middleware-wsgi" class="md-nav__link">
+    Middleware WSGI
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environ" class="md-nav__link">
+    environ
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start_response" class="md-nav__link">
+    start_response
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reponse-iterable" class="md-nav__link">
+    Réponse itérable
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -447,141 +522,71 @@
                   
 
 
-<h1 id="dockeriser-une-application-avec-django-postgres-gunicorn-et-nginx">Dockeriser une application avec Django, Postgres, Gunicorn et Nginx</h1>
-<h2 id="prerequis">Prérequis</h2>
-<ul>
-<li>Docker</li>
-<li>Docker Compose</li>
-<li>Python 3.6 ou supérieur</li>
-</ul>
-<h2 id="creer-le-projet">Créer le projet</h2>
-<p>Créez un nouveau répertoire pour votre nouveau projet Django.</p>
-<pre><code class="language-bash">mkdir django_docker_gunicorn
-cd django_docker_gunicorn
-mkdir app
-cd app
-</code></pre>
-<p>Créez et activez votre environnement virtuel.</p>
-<pre><code class="language-bash">python -m venv .venv --prompt=django
-
-source .venv/bin/activate
-pip install -U pip
-</code></pre>
-<p>Installez Django et créez un nouveau projet.</p>
-<pre><code class="language-bash">pip install django
-django-admin startproject core .
-pip freeze &gt; requirements.txt
-</code></pre>
-<p>Effectuez les migrations et lancez le serveur de développement.</p>
-<pre><code class="language-bash">python manage.py migrate
-python manage.py runserver
-</code></pre>
-<p>Visitez <code>http://localhost:8000/</code> pour vérifier que le projet a bien été créé.</p>
-<p>N'oubliez pas de supprimer le fichier <em>db.sqlite3</em>.</p>
-<p>Votre répertoire devrait ressembler à ceci :</p>
-<pre><code class="language-bash">django_postgres_gunicorn_nginx
-└── app
-    ├── core
-    │   ├── asgi.py
-    │   ├── __init__.py
-    │   ├── settings.py
-    │   ├── urls.py
-    │   └── wsgi.py
-    └── manage.py
-</code></pre>
-<h2 id="docker">Docker</h2>
-<p>Créer un fichier <code>Dockerfile</code> dans le répertoire <em>app</em>.</p>
-<pre><code class="language-dockerfile">FROM python:3.11.4-slim-buster
-
-WORKDIR /usr/src/app
-
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-RUN pip install -U pip
-COPY ./requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-</code></pre>
-<p>Détaillons ce fichier :</p>
-<ul>
-<li>
-<p>Les images python slim-buster sont des images légères de python. Elles ne
-  contiennent que le strict minimum pour faire fonctionner python.</p>
-</li>
-<li>
-<p>La commande <code>WORKDIR</code> permet de définir le répertoire de travail pour toutes
-  les futures instructions RUN, CMO, ENTRYPOINT, COPY et ADD.
-  https://docs.docker.com/engine/reference/builder/#workdir</p>
-</li>
-<li>
-<p>La variable d'environnement <code>PYTHONDONTWRITEBYTECODE</code> permet de ne pas
-  générer de fichiers .pyc.
-  https://docs.python.org/3/using/cmdline.html#envvar-PYTHONDONTWRITEBYTECODE</p>
-</li>
-<li>
-<p>Et <code>PYTHONUNBUFFERED</code> permet de ne pas mettre en cache les sorties de stdout
-  et stderr.
-  https://docs.python.org/3/using/cmdline.html#envvar-PYTHONUNBUFFERED</p>
-</li>
-<li>
-<p>Puis, on met à jour <em>pip</em>, on copie le fichier <em>requirements.txt</em> et on
-  installe les dépendances.</p>
-</li>
-<li>
-<p>Enfin, on copie le reste du projet.</p>
-</li>
-</ul>
-<p>Ajoutez un fichier <code>compose.yaml</code> à la racine du projet, à côté du répertoire <code>app</code>.</p>
-<blockquote>
-<p>Attention ! A partir de juillet 2023, Compose V1 ne sera plus supporté. Vous
-trouvez ici des informations légèrement différentes de ce qui vous pouvez
-voir ailleurs, dans d'autres guides pas forcément à jour.
-https://docs.docker.com/compose/</p>
-</blockquote>
-<pre><code class="language-yaml">services:
-  web:
-    build: app
-    command: python manage.py runserver 0.0.0.0:8000
-    ports:
-      - '8000:8000'
-</code></pre>
-<p>Détaillons ce fichier :</p>
-<ul>
-<li>
-<p><code>services</code> est la clé principale du fichier. Elle contient la liste des services
-qui seront créés.</p>
-</li>
-<li>
-<p><code>web</code> est le nom du service. Il est arbitraire.</p>
-</li>
-<li>
-<p><code>build</code> permet de construire une image à partir d'un Dockerfile. Ici, on lui 
-donne le chemin vers le répertoire <code>app</code>.</p>
-</li>
-<li>
-<p><code>command</code> permet de lancer une commande. Ici, on lance le serveur de développement 
-de Django.</p>
-</li>
-<li>
-<p><code>ports</code> permet de mapper un port du conteneur vers un port de la machine hôte.</p>
-</li>
-</ul>
-<h2 id="postgres">Postgres</h2>
-<p>Nous allons maintenant ajouter une base de données Postgres à notre projet.</p>
-<p>Psycopg2 est un adaptateur de base de données PostgreSQL pour le langage de
-programmation Python. Il permet aux programmes Python de faire des requêtes SQL
-vers une base de données PostgreSQL.</p>
-<blockquote>
-<p>psycopg2-binary est une version précompilée de psycopg2. Elle est plus facile
-à installer que psycopg2, mais elle est plus lourde. Vous pouvez utiliser
-psycopg2 à la place si vous le souhaitez.</p>
-</blockquote>
-<p>Installez le module <code>psycopg2</code> et ajoutez-le à vos dépendances.</p>
-<pre><code class="language-bash">pip install psycopg2-binary
-pip freeze &gt; requirements.txt
-</code></pre>
+<h1 id="wsgi-une-introduction">WSGI, une introduction</h1>
+<h2 id="pourquoi-wsgi-est-necessaire">Pourquoi WSGI est nécessaire ?</h2>
+<h3 id="le-probleme-de-la-portabilite">Le problème de la portabilité</h3>
+<p>Avant l'arrivée de WSGI, le monde du développement web en Python était un peu
+comme le Far West. Chaque framework web avait son propre moyen de communiquer
+avec les serveurs web, et vice versa. Cela signifiait que si tu développais une
+application en utilisant un certain framework, tu étais souvent lié à un
+serveur web spécifique. Changer de serveur web ou de framework pouvait être un
+véritable casse-tête, nécessitant des ajustements majeurs dans le code.</p>
+<h3 id="un-besoin-duniformite">Un besoin d'uniformité</h3>
+<p>Le manque d'un standard commun rendait également difficile la réutilisation du
+code et des composants entre différents projets et frameworks. Par exemple, si
+tu avais un morceau de middleware très utile dans un projet Django, il était
+difficile de le transférer dans un projet Flask sans modifications importantes.</p>
+<h3 id="la-solution-wsgi">La solution : WSGI</h3>
+<p>C'est là qu'intervient WSGI (Web Server Gateway Interface). WSGI agit comme un
+intermédiaire entre le serveur web et l'application web, permettant une
+communication fluide entre les deux, quel que soit le serveur web ou le
+framework utilisé. En d'autres termes, WSGI est un contrat qui dit : "Si tu
+suis ces règles, ton application web pourra communiquer avec n'importe quel
+serveur web qui suit également ces règles, et vice versa."</p>
+<h3 id="les-avantages">Les avantages</h3>
+<ol>
+<li><strong>Portabilité</strong> : Tu peux facilement passer d'un serveur web à un autre sans
+   avoir à réécrire ton application.</li>
+<li><strong>Réutilisabilité</strong> : Les composants, comme les middlewares, peuvent être
+   réutilisés entre différents projets et frameworks.</li>
+<li><strong>Flexibilité</strong> : Tu as la liberté de choisir le serveur web et le framework
+   qui correspondent le mieux à tes besoins, sans être enfermé dans un
+   écosystème particulier.</li>
+</ol>
+<p>En résumé, WSGI apporte une standardisation bien nécessaire à l'écosystème
+Python pour le développement web, rendant la vie beaucoup plus facile pour
+nous, les développeurs.</p>
+<h2 id="terminologie">Terminologie</h2>
+<h3 id="interface-wsgi">Interface WSGI</h3>
+<p>L'<strong>interface WSGI</strong> a deux parties: la partie <em>serveur</em> ou <em>gateway</em> et la
+partie <em>application</em> ou <em>framework</em>. La partie <em>serveur</em> appelle un objet
+<em>callable</em> (généralement une fonction) qui est la partie <em>application</em>.</p>
+<h3 id="application-wsgi">Application WSGI</h3>
+<p>Une <strong>application WSGI</strong> est un programme Python qui se conforme à la
+spécification WSGI. Elle prend en charge deux arguments : un dictionnaire
+d'environnement (<code>environ</code>) et une fonction de démarrage de réponse
+(<code>start_response</code>). L'application renvoie un itérable pour le corps de la réponse
+HTTP.</p>
+<h3 id="serveur-wsgi">Serveur WSGI</h3>
+<p>Un <strong>serveur WSGI</strong> est un serveur web qui sait comment interagir avec une
+application WSGI. Il passe les informations de la requête HTTP à l'application
+via le dictionnaire <code>environ</code> et reçoit les détails de la réponse via
+<code>start_response</code>.</p>
+<h3 id="middleware-wsgi">Middleware WSGI</h3>
+<p>Un <strong>middleware WSGI</strong> est un composant qui se situe entre le serveur WSGI et
+l'application WSGI. Il peut modifier la requête ou la réponse, ou même décider
+de ne pas appeler l'application du tout. On peut enchaîner plusieurs
+middlewares les uns à la suite des autres.</p>
+<h3 id="environ"><code>environ</code></h3>
+<p>C'est un dictionnaire Python qui contient toutes les variables d'environnement
+HTTP. Il est passé de votre serveur WSGI à votre application WSGI.</p>
+<h3 id="start_response"><code>start_response</code></h3>
+<p>C'est fonction callback que le serveur WSGI passe à l'application WSGI.
+L'application l'appelle pour définir les en-têtes de la réponse HTTP et le code
+de statut.</p>
+<h3 id="reponse-iterable">Réponse itérable</h3>
+<p>L'application WSGI doit renvoyer un itérable pour le corps de la réponse HTTP.
+Le serveur WSGI itère sur cet itérable pour obtenir les données de la réponse.</p>
 <p>--WIP--</p>
 
 
